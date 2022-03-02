@@ -2,7 +2,7 @@
 {
     enum Cor
     {
-        Branca,
-        Preta
+        Vermelho,
+        Azul
     }
 }
