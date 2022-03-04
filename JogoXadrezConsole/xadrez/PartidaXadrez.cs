@@ -11,6 +11,7 @@ namespace xadrez
         public bool terminada { get; private set; }
         private HashSet<Peca> pecas;
         private HashSet<Peca> pecasCapturadas;
+        public bool xeque { get; private set; }
 
         public PartidaXadrez()
         {
@@ -23,7 +24,7 @@ namespace xadrez
             colocarPecas();
         }
 
-        public void executaMovimento(Posicao origem, Posicao destino)
+        public Peca executaMovimento(Posicao origem, Posicao destino)
         {
             Peca p = tab.retirarPeca(origem);
             p.incrementarQtdeMovimentos();
@@ -34,11 +35,43 @@ namespace xadrez
             {
                 pecasCapturadas.Add(pecaCapturada);
             }
+
+            return pecaCapturada;
+        }
+
+        public void defazMovimento(Posicao origem, Posicao destino, Peca pecaCapturada)
+        {
+            Peca p = tab.retirarPeca(destino);
+            p.decrementarQtdeMovimentos();
+
+            if(pecaCapturada != null)
+            {
+                tab.colocarPeca(pecaCapturada, destino);
+                pecasCapturadas.Remove(pecaCapturada);
+            }
+
+            tab.colocarPeca(p, origem);
         }
 
         public void realizaJogada(Posicao origem, Posicao destino)
         {
-            executaMovimento(origem, destino);
+            Peca pecaCapturada = executaMovimento(origem, destino);
+
+            if (estaEmXeque(jogadorAtual))
+            {
+                defazMovimento(origem, destino, pecaCapturada);
+                throw new TabuleiroException("Você não pode se colocar em xeque!");
+            }
+
+            if (estaEmXeque(adversaria(jogadorAtual)))
+            {
+                xeque = true;
+            }
+            else
+            {
+                xeque = false;
+            }
+
             turno++;
             alteraJogador();
         }
@@ -113,6 +146,46 @@ namespace xadrez
             return aux;
         }
 
+        private Cor adversaria(Cor cor)
+        {
+            return cor == Cor.Vermelho ? Cor.Azul : Cor.Vermelho;
+        }
+
+        private Peca rei(Cor cor)
+        {
+            foreach(Peca x in pecasEmJogo(cor))
+            {
+                if(x is Rei)
+                {
+                    return x;
+                }
+            }
+            
+            return null;
+        }
+
+        public bool estaEmXeque(Cor cor)
+        {
+            Peca R = rei(cor);
+
+            if(R == null)
+            {
+                throw new TabuleiroException($"Não tem rei da cor {cor} no tabuleiro!");
+            }
+
+            foreach (Peca x in pecasEmJogo(adversaria(cor)))
+            {
+                bool[,] mat = x.movimentosPossiveis();
+
+                if(mat[R.posicao.linha, R.posicao.coluna])
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public void colocarNovaPeca(char coluna, int linha, Peca peca)
         {
             tab.colocarPeca(peca, new PosicaoXadrez(coluna, linha).toPosicao());
@@ -122,12 +195,12 @@ namespace xadrez
         private void colocarPecas()
         {
             colocarNovaPeca('a', 8, new Torre(tab, Cor.Vermelho));
-            colocarNovaPeca('b', 8, new Cavalo(tab, Cor.Vermelho));
-            colocarNovaPeca('c', 8, new Bispo(tab, Cor.Vermelho));
-            colocarNovaPeca('d', 8, new Rainha(tab, Cor.Vermelho));
+            colocarNovaPeca('b', 8, new Torre(tab, Cor.Vermelho));
+            colocarNovaPeca('c', 8, new Torre(tab, Cor.Vermelho));
+            colocarNovaPeca('d', 8, new Torre(tab, Cor.Vermelho));
             colocarNovaPeca('e', 8, new Rei(tab, Cor.Vermelho));
-            colocarNovaPeca('f', 8, new Bispo(tab, Cor.Vermelho));
-            colocarNovaPeca('g', 8, new Cavalo(tab, Cor.Vermelho));
+            colocarNovaPeca('f', 8, new Torre(tab, Cor.Vermelho));
+            colocarNovaPeca('g', 8, new Torre(tab, Cor.Vermelho));
             colocarNovaPeca('h', 8, new Torre(tab, Cor.Vermelho));
 
             //tab.colocarPeca(new Peao(tab, Cor.Vermelho), new PosicaoXadrez('a', 7).toPosicao());
@@ -140,12 +213,12 @@ namespace xadrez
             //tab.colocarPeca(new Peao(tab, Cor.Vermelho), new PosicaoXadrez('h', 7).toPosicao());
 
             colocarNovaPeca('a', 1, new Torre(tab, Cor.Azul));
-            colocarNovaPeca('b', 1, new Cavalo(tab, Cor.Azul));
-            colocarNovaPeca('c', 1, new Bispo(tab, Cor.Azul));
-            colocarNovaPeca('d', 1, new Rainha(tab, Cor.Azul));
+            colocarNovaPeca('b', 1, new Torre(tab, Cor.Azul));
+            colocarNovaPeca('c', 1, new Torre(tab, Cor.Azul));
+            colocarNovaPeca('d', 1, new Torre(tab, Cor.Azul));
             colocarNovaPeca('e', 1, new Rei(tab, Cor.Azul));
-            colocarNovaPeca('f', 1, new Bispo(tab, Cor.Azul));
-            colocarNovaPeca('g', 1, new Cavalo(tab, Cor.Azul));
+            colocarNovaPeca('f', 1, new Torre(tab, Cor.Azul));
+            colocarNovaPeca('g', 1, new Torre(tab, Cor.Azul));
             colocarNovaPeca('h', 1, new Torre(tab, Cor.Azul));
 
             //tab.colocarPeca(new Peao(tab, Cor.Azul), new PosicaoXadrez('a', 2).toPosicao());
