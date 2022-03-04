@@ -20,8 +20,6 @@ namespace JogoXadrezConsole
                         Tela.imprimirTabuleiro(partida.tab);
                         Tela.imprimirPartida(partida);
 
-                        
-
                         Console.WriteLine();
                         Console.Write("Origem: ");
                         Posicao origem = Tela.lerPosicaoXadrez().toPosicao();
@@ -46,6 +44,9 @@ namespace JogoXadrezConsole
                         Console.ReadLine();
                     }
                 }
+
+                Console.Clear();
+                Tela.imprimirTabuleiro(partida.tab);
             }
             catch(TabuleiroException e)
             {
