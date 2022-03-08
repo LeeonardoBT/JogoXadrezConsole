@@ -2,17 +2,16 @@
 
 namespace xadrez
 {
-    class Bispo : Peca
+    class Dama : Peca
     {
-        public Bispo(Tabuleiro tab, Cor cor) : base(tab, cor)
+        public Dama(Tabuleiro tab, Cor cor) : base(tab, cor)
         {
         }
 
         public override string ToString()
         {
-            return "B";
+            return "D";
         }
-
         private bool podeMover(Posicao pos)
         {
             Peca p = tab.peca(pos);
@@ -26,17 +25,73 @@ namespace xadrez
 
             Posicao pos = new Posicao(0, 0);
 
-            // a Bispo pode movimentar na diagonal se estiver vazio
+            // a Dama pode movimentar na diagonal, horizontal e vertical se estiver vazio
             // ou encontrar uma peça adversária, quando encontrar uma peça deve parar
+
+            // para cima
+            pos.definirValores(posicao.linha - 1, posicao.coluna);
+            while (tab.posicaoValida(pos) && podeMover(pos))
+            {
+                mat[pos.linha, pos.coluna] = true;
+
+                if (tab.peca(pos) != null && tab.peca(pos).cor != cor)
+                {
+                    break;
+                }
+
+                pos.linha--;
+            }
+
+            // para baixo
+            pos.definirValores(posicao.linha + 1, posicao.coluna);
+            while (tab.posicaoValida(pos) && podeMover(pos))
+            {
+                mat[pos.linha, pos.coluna] = true;
+
+                if (tab.peca(pos) != null && tab.peca(pos).cor != cor)
+                {
+                    break;
+                }
+
+                pos.linha++;
+            }
+
+            // para esquerda
+            pos.definirValores(posicao.linha, posicao.coluna - 1);
+            while (tab.posicaoValida(pos) && podeMover(pos))
+            {
+                mat[pos.linha, pos.coluna] = true;
+
+                if (tab.peca(pos) != null && tab.peca(pos).cor != cor)
+                {
+                    break;
+                }
+
+                pos.coluna--;
+            }
+
+            // para direita
+            pos.definirValores(posicao.linha, posicao.coluna + 1);
+            while (tab.posicaoValida(pos) && podeMover(pos))
+            {
+                mat[pos.linha, pos.coluna] = true;
+
+                if (tab.peca(pos) != null && tab.peca(pos).cor != cor)
+                {
+                    break;
+                }
+
+                pos.coluna++;
+            }
 
             // Noroeste
             pos.definirValores(posicao.linha - 1, posicao.coluna - 1);
 
-            while(tab.posicaoValida(pos) && podeMover(pos))
+            while (tab.posicaoValida(pos) && podeMover(pos))
             {
                 mat[pos.linha, pos.coluna] = true;
 
-                if(tab.peca(pos) != null && tab.peca(pos).cor != cor)
+                if (tab.peca(pos) != null && tab.peca(pos).cor != cor)
                 {
                     break;
                 }
